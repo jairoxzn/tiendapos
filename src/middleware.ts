@@ -6,7 +6,7 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "dev-only-secret-change-me",
 );
 
-const PUBLIC_PATHS = ["/login", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/api/health", "/catalogo"];
 const ADMIN_ONLY_PATHS = ["/users", "/reports"];
 
 function isPublic(pathname: string) {
