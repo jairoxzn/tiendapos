@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getSession, hashPassword } from "@/lib/auth";
 import {
   createUserSchema,
+  passwordSchema,
   resetPasswordSchema,
   updateUserSchema,
   type CreateUserInput,
@@ -119,7 +120,8 @@ export async function changeOwnPasswordAction(
   const session = await getSession();
   if (!session) return fail("No autenticado.");
 
-  if (newPassword.length < 8) return fail("Mínimo 8 caracteres.");
+  const parsed = passwordSchema.safeParse(newPassword);
+  if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Contraseña inválida.");
 
   const user = await db.user.findUnique({ where: { id: session.sub } });
   if (!user) return fail("Usuario no encontrado.");

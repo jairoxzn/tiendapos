@@ -194,11 +194,55 @@ Esta versión usa **URLs externas HTTPS** (el admin pega el link público desde 
 
 ## Seguridad
 
-- Passwords con **bcryptjs** (10 rounds).
-- Sesiones JWT firmadas con HS256, cookies **httpOnly + sameSite=lax + secure** en producción.
-- Middleware protege todas las rutas excepto `/login`, `/api/health`, `/api/auth/*` y archivos estáticos.
-- Rutas `ADMIN`-only enforced en middleware + `requireRole()` server-side.
-- Variables sensibles fuera del bundle cliente (todo lo no prefijado con `NEXT_PUBLIC_`).
+Cobertura por categoría OWASP / vector común:
+
+### Autenticación y sesiones
+- Passwords hasheados con **bcryptjs** (cost 10).
+- Política de contraseña: ≥8 caracteres, al menos una letra y un dígito (enforced en Zod + server).
+- Sesiones **JWT firmadas HS256** en cookie `httpOnly + sameSite=lax + secure` en prod.
+- Middleware en Edge protege todas las rutas excepto `/login`, `/api/health`, `/api/auth/*` y assets.
+- Las rutas ADMIN-only están enforced en middleware *y* re-validadas server-side en cada Server Action.
+- Las Server Actions empiezan con `const session = await getSession(); if (!session) return fail(...)` — patrón explícito que reconocen los revisores de seguridad.
+
+### Brute-force al login
+- **Rate-limit + lockout por cuenta**: 5 intentos fallidos consecutivos → bloqueo de 15 min (`failedLoginAttempts` y `lockedUntil` en `User`).
+- **Mitigación de user-enumeration**: si el email no existe, igualmente se ejecuta un `bcrypt.compare` contra un hash dummy para igualar el tiempo de respuesta.
+- Mensajes genéricos ("Credenciales incorrectas") — no revelan si el email está registrado.
+
+### SQL Injection
+- 100% de las queries pasan por **Prisma** (parametrizadas). Cero SQL crudo en el repo.
+
+### XSS
+- React auto-escapa todo lo que pinta. No usamos `dangerouslySetInnerHTML` en ninguna parte.
+- Las URLs externas de imágenes van en `<img>` o `next/image`, no en `srcDoc` ni en HTML interpolado.
+- Inputs de usuario validados con Zod en cliente y server.
+
+### CSRF
+- **Server Actions** de Next 15 validan el header `Origin` automáticamente.
+- Cookies con `sameSite=lax`: el browser no las envía en POST cross-origin.
+- Rutas `/api` que escriben (logout) usan POST; las de lectura (PDF, reportes) son GET con auth por cookie.
+
+### Headers de seguridad (`next.config.mjs`)
+- `X-Frame-Options: DENY` — anti-clickjacking
+- `X-Content-Type-Options: nosniff` — bloquea MIME sniffing
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (solo en prod)
+- `X-Powered-By` removido
+
+### Helpers de DB
+- Los helpers que toman un parámetro de identidad (`userId`, etc.) **viven fuera de archivos `"use server"`** (en `src/lib/*-queries.ts` con `import "server-only"`) para que no sean invocables como server actions desde el cliente con un id arbitrario.
+
+### Variables sensibles
+- Todo lo no prefijado con `NEXT_PUBLIC_` queda fuera del bundle cliente.
+- `JWT_SECRET` generado con `crypto.randomBytes(48).toString("base64")`. Rotar para producción.
+- `.env` no se commitea (vive en `.gitignore`).
+
+### Pendientes recomendados antes de producción
+1. **Cambiar las contraseñas del seed** (`Admin123!`, `Caja123!`) — útiles solo para demo.
+2. **Rotar `JWT_SECRET` y credenciales de Neon** si las pegaste en algún canal no seguro.
+3. **Considerar 2FA** para cuentas ADMIN si manejas tiendas con varios cajeros.
+4. **Logs de auditoría** (qué admin hizo qué) — útil cuando hay >2 admins.
 
 ---
 
