@@ -2,16 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-    ],
+    // Imágenes vienen de URLs externas pegadas por el admin. Permitimos cualquier host HTTPS.
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   experimental: {
     serverActions: {

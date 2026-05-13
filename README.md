@@ -2,7 +2,7 @@
 
 Sistema POS profesional para tiendas de ropa. Multi-rol, multi-variante (tallas/colores), caja diaria, kardex y reportes — desplegable en Vercel + Neon PostgreSQL.
 
-> **Estado actual: Fase 1 completa.** Login funcional, dashboard con KPIs y gráfica, layout responsive con sidebar + dark mode, base de datos en Neon con schema completo y datos demo.
+> **Estado actual: Fase 2 completa.** Catálogo (categorías, marcas, productos con variantes talla×color), inventario con kardex de movimientos, alertas de stock bajo. Imágenes vía URL externa (sin storage SaaS).
 
 ---
 
@@ -35,8 +35,11 @@ tiendapos/
 │  │  ├─ (dashboard)/
 │  │  │  ├─ dashboard/    # KPIs + gráfica
 │  │  │  ├─ pos/          # ⏳ Fase 3
-│  │  │  ├─ products/     # ⏳ Fase 2
-│  │  │  ├─ inventory/    # ⏳ Fase 2
+│  │  │  ├─ products/     # ✓ CRUD + variantes dinámicas
+│  │  │  ├─ categories/   # ✓ CRUD con borrado lógico
+│  │  │  ├─ brands/       # ✓ CRUD con logo opcional
+│  │  │  ├─ inventory/    # ✓ Stock por variante + alertas
+│  │  │  │  └─ movements/ # ✓ Kardex completo
 │  │  │  ├─ sales/        # ⏳ Fase 3
 │  │  │  ├─ customers/    # ⏳ Fase 4
 │  │  │  ├─ cash-register/# ⏳ Fase 3
@@ -169,9 +172,13 @@ Todos los modelos tienen índices en las columnas que se consultan más (código
 ## Roadmap
 
 - **Fase 1 ✓** — Scaffolding · Prisma · Auth · Layout dashboard
-- **Fase 2** — Productos · Categorías · Marcas · Variantes · Inventario · Kardex · Cloudinary
-- **Fase 3** — POS Ventas · Carrito · Pagos · Tickets PDF · Caja diaria
+- **Fase 2 ✓** — Productos · Categorías · Marcas · Variantes (talla×color) · Inventario · Kardex
+- **Fase 3** — POS Ventas · Carrito · Pagos múltiples · Tickets PDF · Caja diaria
 - **Fase 4** — Clientes · Reportes (PDF/Excel) · Gestión de usuarios · Configuración
+
+### Imágenes de productos
+
+Esta versión usa **URLs externas HTTPS** (el admin pega el link público desde Instagram, Drive, Imgur, etc.). Sin storage SaaS, sin upload — máxima simplicidad. Si más adelante quieres reemplazar por Vercel Blob o UploadThing, el único cambio es agregar un componente de upload que devuelva la URL al campo `imageUrl` del formulario de producto.
 
 ---
 

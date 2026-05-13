@@ -9,6 +9,7 @@ import {
   PackageSearch,
   Receipt,
   ShoppingBag,
+  Sparkles,
   Tags,
   Users,
   Wallet,
@@ -37,6 +38,7 @@ const NAV: { section: string; items: NavItem[] }[] = [
     items: [
       { href: "/products", label: "Productos", icon: PackageSearch },
       { href: "/categories", label: "Categorías", icon: Tags },
+      { href: "/brands", label: "Marcas", icon: Sparkles },
       { href: "/inventory", label: "Inventario", icon: Boxes },
     ],
   },

@@ -1,4 +1,5 @@
-import { Plus, Tags } from "lucide-react";
+import Image from "next/image";
+import { Plus, Sparkles } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,14 +17,14 @@ import {
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 
-import { CategoryDialog } from "./category-dialog";
-import { CategoryRowActions } from "./category-row-actions";
+import { BrandDialog } from "./brand-dialog";
+import { BrandRowActions } from "./brand-row-actions";
 
-export const metadata = { title: "Categorías" };
+export const metadata = { title: "Marcas" };
 export const dynamic = "force-dynamic";
 
-export default async function CategoriesPage() {
-  const categories = await db.category.findMany({
+export default async function BrandsPage() {
+  const brands = await db.brand.findMany({
     orderBy: { name: "asc" },
     include: { _count: { select: { products: true } } },
   });
@@ -31,14 +32,14 @@ export default async function CategoriesPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Categorías"
-        description="Organiza tus productos por categoría."
+        title="Marcas"
+        description="Asocia productos a marcas para reportes y filtros."
         action={
-          <CategoryDialog
+          <BrandDialog
             trigger={
               <Button>
                 <Plus className="h-4 w-4" />
-                Nueva categoría
+                Nueva marca
               </Button>
             }
           />
@@ -47,18 +48,18 @@ export default async function CategoriesPage() {
 
       <Card>
         <CardContent className="p-0">
-          {categories.length === 0 ? (
+          {brands.length === 0 ? (
             <div className="p-6">
               <EmptyState
-                icon={Tags}
-                title="Aún no tienes categorías"
-                description="Crea tu primera categoría para empezar a organizar productos."
+                icon={Sparkles}
+                title="Aún no tienes marcas"
+                description="Las marcas son opcionales pero útiles para reportes."
                 action={
-                  <CategoryDialog
+                  <BrandDialog
                     trigger={
                       <Button>
                         <Plus className="h-4 w-4" />
-                        Crear primera categoría
+                        Crear primera marca
                       </Button>
                     }
                   />
@@ -69,8 +70,8 @@ export default async function CategoriesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Logo</TableHead>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Descripción</TableHead>
                   <TableHead className="text-center">Productos</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Creada</TableHead>
@@ -78,25 +79,37 @@ export default async function CategoriesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {categories.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell className="max-w-xs truncate text-muted-foreground">
-                      {c.description ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-center text-sm">{c._count.products}</TableCell>
+                {brands.map((b) => (
+                  <TableRow key={b.id}>
                     <TableCell>
-                      {c.isActive ? (
+                      {b.logoUrl ? (
+                        <Image
+                          src={b.logoUrl}
+                          alt={b.name}
+                          width={36}
+                          height={36}
+                          className="h-9 w-9 rounded-md object-contain"
+                        />
+                      ) : (
+                        <div className="grid h-9 w-9 place-items-center rounded-md bg-muted text-xs font-medium text-muted-foreground">
+                          {b.name.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{b.name}</TableCell>
+                    <TableCell className="text-center text-sm">{b._count.products}</TableCell>
+                    <TableCell>
+                      {b.isActive ? (
                         <Badge variant="success">Activa</Badge>
                       ) : (
                         <Badge variant="secondary">Inactiva</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(c.createdAt)}
+                      {formatDate(b.createdAt)}
                     </TableCell>
                     <TableCell>
-                      <CategoryRowActions category={c} />
+                      <BrandRowActions brand={b} />
                     </TableCell>
                   </TableRow>
                 ))}
