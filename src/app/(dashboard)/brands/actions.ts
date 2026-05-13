@@ -3,13 +3,15 @@
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { brandSchema, type BrandInput } from "@/lib/validations/catalog";
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 import { slugify } from "@/lib/utils";
 
 export async function createBrandAction(input: BrandInput): Promise<ActionResult<{ id: string }>> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = brandSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -29,7 +31,9 @@ export async function createBrandAction(input: BrandInput): Promise<ActionResult
 }
 
 export async function updateBrandAction(id: string, input: BrandInput): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = brandSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -50,7 +54,9 @@ export async function updateBrandAction(id: string, input: BrandInput): Promise<
 }
 
 export async function toggleBrandAction(id: string, isActive: boolean): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     await db.brand.update({ where: { id }, data: { isActive } });
     revalidatePath("/brands");
@@ -61,7 +67,9 @@ export async function toggleBrandAction(id: string, isActive: boolean): Promise<
 }
 
 export async function deleteBrandAction(id: string): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     const inUse = await db.product.count({ where: { brandId: id } });
     if (inUse > 0) {

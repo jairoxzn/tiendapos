@@ -15,9 +15,10 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
+import { getOpenCashRegisterForUser } from "@/lib/cash-register-queries";
+
 import { CloseCashDialog } from "./close-cash-dialog";
 import { OpenCashDialog } from "./open-cash-dialog";
-import { getOpenCashRegisterForUser } from "./actions";
 
 export const metadata = { title: "Caja" };
 export const dynamic = "force-dynamic";

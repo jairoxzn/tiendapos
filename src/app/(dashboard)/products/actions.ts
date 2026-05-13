@@ -5,20 +5,20 @@ import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { productSchema, type ProductInput } from "@/lib/validations/catalog";
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 
 export async function createProductAction(
   input: ProductInput,
 ): Promise<ActionResult<{ id: string }>> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
   const d = parsed.data;
-
-  // Validar SKUs únicos dentro del set de variantes
   const variantSkus = d.variants.map((v) => v.sku);
   if (new Set(variantSkus).size !== variantSkus.length) {
     return fail("Hay SKUs de variante duplicados en el formulario.");
@@ -60,7 +60,9 @@ export async function updateProductAction(
   id: string,
   input: ProductInput,
 ): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -72,7 +74,6 @@ export async function updateProductAction(
 
   try {
     await db.$transaction(async (tx) => {
-      // Actualizar campos del producto
       await tx.product.update({
         where: { id },
         data: {
@@ -88,7 +89,6 @@ export async function updateProductAction(
         },
       });
 
-      // Sincronizar variantes (upsert por id, delete las no enviadas)
       const incomingIds = d.variants.filter((v) => v.id).map((v) => v.id!);
       await tx.variant.deleteMany({
         where: { productId: id, id: { notIn: incomingIds.length ? incomingIds : ["__none__"] } },
@@ -133,7 +133,9 @@ export async function updateProductAction(
 }
 
 export async function toggleProductAction(id: string, isActive: boolean): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     await db.product.update({ where: { id }, data: { isActive } });
     revalidatePath("/products");
@@ -144,13 +146,14 @@ export async function toggleProductAction(id: string, isActive: boolean): Promis
 }
 
 export async function deleteProductAction(id: string): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     const sold = await db.saleDetail.count({ where: { variant: { productId: id } } });
     if (sold > 0) {
       return fail("No se puede eliminar: hay ventas asociadas. Desactívalo en su lugar.");
     }
-    // Las variantes se borran por cascada
     await db.product.delete({ where: { id } });
     revalidatePath("/products");
     return ok(undefined);
@@ -160,6 +163,9 @@ export async function deleteProductAction(id: string): Promise<ActionResult> {
 }
 
 export async function deleteProductAndRedirect(id: string) {
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const res = await deleteProductAction(id);
   if (!res.ok) return res;
   redirect("/products");

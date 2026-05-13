@@ -3,13 +3,15 @@
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { categorySchema, type CategoryInput } from "@/lib/validations/catalog";
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 import { slugify } from "@/lib/utils";
 
 export async function createCategoryAction(input: CategoryInput): Promise<ActionResult<{ id: string }>> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -32,7 +34,9 @@ export async function updateCategoryAction(
   id: string,
   input: CategoryInput,
 ): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -53,7 +57,9 @@ export async function updateCategoryAction(
 }
 
 export async function toggleCategoryAction(id: string, isActive: boolean): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     await db.category.update({ where: { id }, data: { isActive } });
     revalidatePath("/categories");
@@ -64,7 +70,9 @@ export async function toggleCategoryAction(id: string, isActive: boolean): Promi
 }
 
 export async function deleteCategoryAction(id: string): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     const inUse = await db.product.count({ where: { categoryId: id } });
     if (inUse > 0) {

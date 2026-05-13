@@ -4,13 +4,12 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { createSaleSchema, type CreateSaleInput } from "@/lib/validations/sales";
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 import { computeTotals, formatSaleCode, round2 } from "@/lib/sales";
 import { IGV_PERCENT } from "@/lib/constants";
-
-import { getOpenCashRegisterForUser } from "../cash-register/actions";
+import { getOpenCashRegisterForUser } from "@/lib/cash-register-queries";
 
 export interface ProductSearchResult {
   id: string;
@@ -30,7 +29,9 @@ export interface ProductSearchResult {
 }
 
 export async function searchProductsForPos(query: string): Promise<ProductSearchResult[]> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return [];
+
   const q = query.trim();
 
   const products = await db.product.findMany({
@@ -77,7 +78,9 @@ export async function searchProductsForPos(query: string): Promise<ProductSearch
 export async function createSaleAction(
   input: CreateSaleInput,
 ): Promise<ActionResult<{ id: string; code: string }>> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = createSaleSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -86,7 +89,6 @@ export async function createSaleAction(
 
   try {
     const result = await db.$transaction(async (tx) => {
-      // Validar variantes + stock + precios
       const variantIds = parsed.data.lines.map((l) => l.variantId);
       const variants = await tx.variant.findMany({
         where: { id: { in: variantIds } },
@@ -123,10 +125,8 @@ export async function createSaleAction(
         });
       }
 
-      // Totales
       const totals = computeTotals(parsed.data.lines, parsed.data.generalDiscount, IGV_PERCENT);
 
-      // Validar suma de pagos contra total (tolerancia 1 céntimo)
       const totalPayments = parsed.data.payments.reduce((s, p) => s + p.amount, 0);
       if (Math.abs(totalPayments - totals.total) > 0.01) {
         throw new Error(
@@ -134,7 +134,6 @@ export async function createSaleAction(
         );
       }
 
-      // Código secuencial
       const seq = (await tx.sale.count()) + 1;
       const code = formatSaleCode(seq);
 
@@ -171,7 +170,6 @@ export async function createSaleAction(
         },
       });
 
-      // Descontar stock + crear movimientos OUT
       for (const d of detailsData) {
         const v = map.get(d.variantId)!;
         const newStock = v.stock - d.quantity;
@@ -208,7 +206,8 @@ export async function createSaleAction(
 }
 
 export async function voidSaleAction(id: string): Promise<ActionResult> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
   if (session.role !== "ADMIN") return fail("Solo administradores pueden anular ventas.");
 
   try {
@@ -220,7 +219,6 @@ export async function voidSaleAction(id: string): Promise<ActionResult> {
       if (!sale) throw new Error("Venta no encontrada");
       if (sale.status !== "COMPLETED") throw new Error("Solo se pueden anular ventas completadas.");
 
-      // Devolver stock + movimiento RETURN
       for (const d of sale.details) {
         const v = d.variant;
         const newStock = v.stock + d.quantity;

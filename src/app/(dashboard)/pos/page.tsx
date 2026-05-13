@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/auth";
+import { getOpenCashRegisterForUser } from "@/lib/cash-register-queries";
 
 import { CartPanel } from "./cart-panel";
 import { NoCashRegister } from "./no-cash-register";
 import { ProductSearch } from "./product-search";
-import { getOpenCashRegisterForUser } from "../cash-register/actions";
 
 export const metadata = { title: "Punto de Venta" };
 export const dynamic = "force-dynamic";

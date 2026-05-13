@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
-import { requireRole, requireSession, hashPassword } from "@/lib/auth";
+import { getSession, hashPassword } from "@/lib/auth";
 import {
   createUserSchema,
   resetPasswordSchema,
@@ -15,7 +15,10 @@ import {
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 
 export async function createUserAction(input: CreateUserInput): Promise<ActionResult<{ id: string }>> {
-  await requireRole("ADMIN");
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+  if (session.role !== "ADMIN") return fail("Solo administradores pueden crear usuarios.");
+
   const parsed = createUserSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -40,11 +43,13 @@ export async function updateUserAction(
   id: string,
   input: UpdateUserInput,
 ): Promise<ActionResult> {
-  const session = await requireRole("ADMIN");
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+  if (session.role !== "ADMIN") return fail("Solo administradores pueden editar usuarios.");
+
   const parsed = updateUserSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
-  // Evitar que el admin se quite a sí mismo el rol o se desactive
   if (id === session.sub) {
     if (parsed.data.role !== "ADMIN") return fail("No puedes quitarte tu propio rol de admin.");
     if (!parsed.data.isActive) return fail("No puedes desactivar tu propia cuenta.");
@@ -70,7 +75,10 @@ export async function resetUserPasswordAction(
   id: string,
   input: ResetPasswordInput,
 ): Promise<ActionResult> {
-  await requireRole("ADMIN");
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+  if (session.role !== "ADMIN") return fail("Solo administradores pueden restablecer contraseñas.");
+
   const parsed = resetPasswordSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -84,7 +92,9 @@ export async function resetUserPasswordAction(
 }
 
 export async function deleteUserAction(id: string): Promise<ActionResult> {
-  const session = await requireRole("ADMIN");
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+  if (session.role !== "ADMIN") return fail("Solo administradores pueden eliminar usuarios.");
   if (id === session.sub) return fail("No puedes eliminar tu propia cuenta.");
 
   try {
@@ -106,16 +116,17 @@ export async function changeOwnPasswordAction(
   currentPassword: string,
   newPassword: string,
 ): Promise<ActionResult> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   if (newPassword.length < 8) return fail("Mínimo 8 caracteres.");
 
   const user = await db.user.findUnique({ where: { id: session.sub } });
   if (!user) return fail("Usuario no encontrado.");
 
-  // Re-importamos aquí para evitar cycle si pasara
   const bcrypt = await import("bcryptjs");
-  const ok2 = await bcrypt.compare(currentPassword, user.password);
-  if (!ok2) return fail("Contraseña actual incorrecta.");
+  const matches = await bcrypt.compare(currentPassword, user.password);
+  if (!matches) return fail("Contraseña actual incorrecta.");
 
   await db.user.update({
     where: { id: session.sub },

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import {
   inventoryMovementSchema,
   type InventoryMovementInput,
@@ -18,7 +18,9 @@ import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-he
 export async function createMovementAction(
   input: InventoryMovementInput,
 ): Promise<ActionResult> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = inventoryMovementSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -29,8 +31,6 @@ export async function createMovementAction(
       const variant = await tx.variant.findUnique({ where: { id: variantId } });
       if (!variant) throw new Error("Variante no encontrada");
 
-      // IN/RETURN suman stock; OUT resta; ADJUSTMENT puede sumar o restar — aquí lo
-      // tratamos como cantidad ABSOLUTA destino (más predecible para correcciones).
       let stockAfter: number;
       let signedDelta: number;
 
@@ -46,7 +46,6 @@ export async function createMovementAction(
           if (stockAfter < 0) throw new Error("Stock insuficiente para esta salida.");
           break;
         case "ADJUSTMENT":
-          // En ajustes, `quantity` representa el stock final deseado
           stockAfter = quantity;
           signedDelta = quantity - variant.stock;
           break;

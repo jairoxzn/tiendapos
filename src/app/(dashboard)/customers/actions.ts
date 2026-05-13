@@ -3,14 +3,16 @@
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { customerSchema, type CustomerInput } from "@/lib/validations/customers";
 import { fail, ok, prismaErrorMessage, type ActionResult } from "@/lib/prisma-helpers";
 
 export async function createCustomerAction(
   input: CustomerInput,
 ): Promise<ActionResult<{ id: string; firstName: string; lastName: string | null; docNumber: string }>> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = customerSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -43,7 +45,9 @@ export async function updateCustomerAction(
   id: string,
   input: CustomerInput,
 ): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = customerSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -70,7 +74,9 @@ export async function updateCustomerAction(
 }
 
 export async function toggleCustomerAction(id: string, isActive: boolean): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     await db.customer.update({ where: { id }, data: { isActive } });
     revalidatePath("/customers");
@@ -81,7 +87,9 @@ export async function toggleCustomerAction(id: string, isActive: boolean): Promi
 }
 
 export async function deleteCustomerAction(id: string): Promise<ActionResult> {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   try {
     const sales = await db.sale.count({ where: { customerId: id } });
     if (sales > 0) {
@@ -98,9 +106,12 @@ export async function deleteCustomerAction(id: string): Promise<ActionResult> {
 }
 
 export async function searchCustomers(q: string) {
-  await requireSession();
+  const session = await getSession();
+  if (!session) return [];
+
   const query = q.trim();
   if (query.length < 2) return [];
+
   const results = await db.customer.findMany({
     where: {
       isActive: true,

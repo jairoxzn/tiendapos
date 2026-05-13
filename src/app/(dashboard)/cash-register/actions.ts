@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { getOpenCashRegisterForUser } from "@/lib/cash-register-queries";
 import {
   closeCashRegisterSchema,
   openCashRegisterSchema,
@@ -21,17 +22,12 @@ function generateCashRegisterCode(seq: number) {
   return `CAJA-${y}-${m}-${d}-${String(seq).padStart(3, "0")}`;
 }
 
-export async function getOpenCashRegisterForUser(userId: string) {
-  return db.cashRegister.findFirst({
-    where: { userId, status: "OPEN" },
-    orderBy: { openedAt: "desc" },
-  });
-}
-
 export async function openCashRegisterAction(
   input: OpenCashRegisterInput,
 ): Promise<ActionResult<{ id: string }>> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = openCashRegisterSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -39,7 +35,6 @@ export async function openCashRegisterAction(
     const already = await getOpenCashRegisterForUser(session.sub);
     if (already) return fail("Ya tienes una caja abierta. Ciérrala antes de abrir otra.");
 
-    // Generar code secuencial del día
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const seq = (await db.cashRegister.count({ where: { openedAt: { gte: todayStart } } })) + 1;
@@ -64,7 +59,9 @@ export async function closeCashRegisterAction(
   id: string,
   input: CloseCashRegisterInput,
 ): Promise<ActionResult> {
-  const session = await requireSession();
+  const session = await getSession();
+  if (!session) return fail("No autenticado.");
+
   const parsed = closeCashRegisterSchema.safeParse(input);
   if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? "Datos inválidos");
 
@@ -84,7 +81,6 @@ export async function closeCashRegisterAction(
     }
     if (register.status === "CLOSED") return fail("La caja ya está cerrada.");
 
-    // Esperado en efectivo = apertura + pagos CASH de las ventas de la caja
     const cashSales = register.sales
       .flatMap((s) => s.payments)
       .filter((p) => p.method === "CASH")
