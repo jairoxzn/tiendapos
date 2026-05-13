@@ -2,7 +2,7 @@
 
 Sistema POS profesional para tiendas de ropa. Multi-rol, multi-variante (tallas/colores), caja diaria, kardex y reportes — desplegable en Vercel + Neon PostgreSQL.
 
-> **Estado actual: Fase 3 completa.** POS funcional con carrito persistente, búsqueda manual de productos, pagos múltiples (Efectivo/Yape/Plin/Tarjeta/Transferencia), caja diaria con cuadre, boleta PDF descargable y anulación de ventas. IGV agregado al total, configurable vía env.
+> **Estado actual: Las 4 fases completas — sistema listo para producción.** POS + Inventario + Caja + Clientes + Reportes PDF/Excel + Gestión de usuarios + Dashboard con datos reales.
 
 ---
 
@@ -41,10 +41,11 @@ tiendapos/
 │  │  │  ├─ inventory/    # ✓ Stock por variante + alertas
 │  │  │  │  └─ movements/ # ✓ Kardex completo
 │  │  │  ├─ sales/        # ✓ Lista + detalle + anulación
-│  │  │  ├─ customers/    # ⏳ Fase 4
+│  │  │  ├─ customers/    # ✓ CRUD + historial + selector POS
 │  │  │  ├─ cash-register/# ✓ Apertura/cierre con cuadre
-│  │  │  ├─ reports/      # ⏳ Fase 4 (solo admin)
-│  │  │  └─ users/        # ⏳ Fase 4 (solo admin)
+│  │  │  ├─ reports/      # ✓ Tabs + export PDF/Excel (admin)
+│  │  │  ├─ users/        # ✓ Gestión de cuentas (admin)
+│  │  │  └─ settings/     # ✓ Datos empresa + cambio password
 │  │  ├─ api/auth/logout/ # Cierre de sesión
 │  │  └─ layout.tsx       # Theme provider + Sonner
 │  ├─ components/
@@ -174,7 +175,7 @@ Todos los modelos tienen índices en las columnas que se consultan más (código
 - **Fase 1 ✓** — Scaffolding · Prisma · Auth · Layout dashboard
 - **Fase 2 ✓** — Productos · Categorías · Marcas · Variantes (talla×color) · Inventario · Kardex
 - **Fase 3 ✓** — POS Ventas · Carrito persistente · Pagos múltiples · Boleta PDF · Caja diaria
-- **Fase 4** — Clientes · Reportes (PDF/Excel) · Gestión de usuarios · Configuración
+- **Fase 4 ✓** — Clientes · Reportes (PDF/Excel) · Gestión de usuarios · Configuración · Dashboard con datos reales
 
 ### Modelo fiscal (IGV)
 

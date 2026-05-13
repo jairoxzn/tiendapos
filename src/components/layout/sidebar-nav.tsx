@@ -8,9 +8,11 @@ import {
   LayoutDashboard,
   PackageSearch,
   Receipt,
+  Settings,
   ShoppingBag,
   Sparkles,
   Tags,
+  UserCog,
   Users,
   Wallet,
 } from "lucide-react";
@@ -54,7 +56,8 @@ const NAV: { section: string; items: NavItem[] }[] = [
     section: "Administración",
     items: [
       { href: "/reports", label: "Reportes", icon: BarChart3, adminOnly: true },
-      { href: "/users", label: "Usuarios", icon: Users, adminOnly: true },
+      { href: "/users", label: "Usuarios", icon: UserCog, adminOnly: true },
+      { href: "/settings", label: "Configuración", icon: Settings },
     ],
   },
 ];

@@ -23,6 +23,14 @@ import type { PaymentInput } from "@/lib/validations/sales";
 import { useCart } from "@/stores/cart-store";
 
 import { createSaleAction } from "./actions";
+import { CustomerPicker } from "./customer-picker";
+
+interface SelectedCustomer {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  docNumber: string;
+}
 
 interface CheckoutDialogProps {
   totals: { subtotal: number; discountAmount: number; taxAmount: number; total: number };
@@ -48,6 +56,7 @@ export function CheckoutDialog({ totals, disabled }: CheckoutDialogProps) {
     { method: "CASH", amount: 0, reference: "" },
   ]);
   const [notes, setNotes] = useState("");
+  const [customer, setCustomer] = useState<SelectedCustomer | null>(null);
 
   const { lines, generalDiscount, clear } = useCart();
 
@@ -56,6 +65,7 @@ export function CheckoutDialog({ totals, disabled }: CheckoutDialogProps) {
     if (open) {
       setPayments([{ method: "CASH", amount: totals.total, reference: "" }]);
       setNotes("");
+      setCustomer(null);
     }
   }, [open, totals.total]);
 
@@ -91,7 +101,7 @@ export function CheckoutDialog({ totals, disabled }: CheckoutDialogProps) {
 
     startTransition(async () => {
       const res = await createSaleAction({
-        customerId: "",
+        customerId: customer?.id ?? "",
         notes,
         generalDiscount,
         lines: lines.map((l) => ({
@@ -134,6 +144,11 @@ export function CheckoutDialog({ totals, disabled }: CheckoutDialogProps) {
             <span className="font-semibold text-foreground">{formatCurrency(totals.total)}</span>
           </DialogDescription>
         </DialogHeader>
+
+        <div className="space-y-2">
+          <Label>Cliente (opcional)</Label>
+          <CustomerPicker value={customer} onChange={setCustomer} />
+        </div>
 
         <div className="space-y-3">
           <Label>Métodos de pago</Label>

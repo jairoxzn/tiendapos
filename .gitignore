@@ -42,6 +42,7 @@ prisma/migrations/dev.db*
 # editor
 .vscode/
 .idea/
+.claude/
 
 # uploads (local dev)
 public/uploads/*
