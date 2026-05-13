@@ -2,7 +2,7 @@
 
 Sistema POS profesional para tiendas de ropa. Multi-rol, multi-variante (tallas/colores), caja diaria, kardex y reportes — desplegable en Vercel + Neon PostgreSQL.
 
-> **Estado actual: Fase 2 completa.** Catálogo (categorías, marcas, productos con variantes talla×color), inventario con kardex de movimientos, alertas de stock bajo. Imágenes vía URL externa (sin storage SaaS).
+> **Estado actual: Fase 3 completa.** POS funcional con carrito persistente, búsqueda manual de productos, pagos múltiples (Efectivo/Yape/Plin/Tarjeta/Transferencia), caja diaria con cuadre, boleta PDF descargable y anulación de ventas. IGV agregado al total, configurable vía env.
 
 ---
 
@@ -34,15 +34,15 @@ tiendapos/
 │  │  ├─ (auth)/login/    # Login con server action
 │  │  ├─ (dashboard)/
 │  │  │  ├─ dashboard/    # KPIs + gráfica
-│  │  │  ├─ pos/          # ⏳ Fase 3
+│  │  │  ├─ pos/          # ✓ Búsqueda + carrito + checkout
 │  │  │  ├─ products/     # ✓ CRUD + variantes dinámicas
 │  │  │  ├─ categories/   # ✓ CRUD con borrado lógico
 │  │  │  ├─ brands/       # ✓ CRUD con logo opcional
 │  │  │  ├─ inventory/    # ✓ Stock por variante + alertas
 │  │  │  │  └─ movements/ # ✓ Kardex completo
-│  │  │  ├─ sales/        # ⏳ Fase 3
+│  │  │  ├─ sales/        # ✓ Lista + detalle + anulación
 │  │  │  ├─ customers/    # ⏳ Fase 4
-│  │  │  ├─ cash-register/# ⏳ Fase 3
+│  │  │  ├─ cash-register/# ✓ Apertura/cierre con cuadre
 │  │  │  ├─ reports/      # ⏳ Fase 4 (solo admin)
 │  │  │  └─ users/        # ⏳ Fase 4 (solo admin)
 │  │  ├─ api/auth/logout/ # Cierre de sesión
@@ -173,8 +173,17 @@ Todos los modelos tienen índices en las columnas que se consultan más (código
 
 - **Fase 1 ✓** — Scaffolding · Prisma · Auth · Layout dashboard
 - **Fase 2 ✓** — Productos · Categorías · Marcas · Variantes (talla×color) · Inventario · Kardex
-- **Fase 3** — POS Ventas · Carrito · Pagos múltiples · Tickets PDF · Caja diaria
+- **Fase 3 ✓** — POS Ventas · Carrito persistente · Pagos múltiples · Boleta PDF · Caja diaria
 - **Fase 4** — Clientes · Reportes (PDF/Excel) · Gestión de usuarios · Configuración
+
+### Modelo fiscal (IGV)
+
+Los precios de productos se guardan **sin IGV**. En el checkout:
+- `subtotal` = Σ (precio × cantidad − descuento de línea)
+- `IGV` = (subtotal − descuento global) × `NEXT_PUBLIC_IGV_PERCENT` (default 18%)
+- `total` = subtotal − descuento global + IGV
+
+Si más adelante quieres precios "con IGV incluido" (típico retail Perú), basta cambiar la fórmula en `src/lib/sales.ts:computeTotals`.
 
 ### Imágenes de productos
 
