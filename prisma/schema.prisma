@@ -5,7 +5,10 @@
 // Neon PostgreSQL + Prisma Client.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" cubre dev local (Windows/Mac). "rhel-openssl-3.0.x" es lo que Vercel
+  // usa en runtime (Linux). Sin esto, el binario generado en Windows no carga en Vercel.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
