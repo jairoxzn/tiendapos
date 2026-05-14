@@ -4,8 +4,8 @@ import {
   ArrowLeft,
   Banknote,
   CreditCard,
-  Download,
   Receipt,
+  ReceiptText,
   Smartphone,
   User,
 } from "lucide-react";
@@ -103,9 +103,9 @@ export default async function SaleDetailPage({ params }: PageProps) {
         <div className="flex items-center gap-2">
           <Badge variant={meta.variant}>{meta.label}</Badge>
           <Button asChild variant="outline">
-            <a href={`/api/sales/${sale.id}/pdf`} target="_blank" rel="noreferrer">
-              <Download className="h-4 w-4" />
-              Boleta PDF
+            <a href={`/api/sales/${sale.id}/nota-venta`} target="_blank" rel="noreferrer">
+              <ReceiptText className="h-4 w-4" />
+              Nota de Venta
             </a>
           </Button>
           {sale.status === "COMPLETED" && session?.role === "ADMIN" && (

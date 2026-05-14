@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Receipt } from "lucide-react";
+import { Receipt, ReceiptText } from "lucide-react";
 import type { Prisma, SaleStatus } from "@prisma/client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -88,6 +89,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
                   <TableHead className="text-center">Items</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead>Estado</TableHead>
+                  <TableHead className="text-right">Imprimir</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -116,6 +118,22 @@ export default async function SalesPage({ searchParams }: PageProps) {
                       </TableCell>
                       <TableCell>
                         <Badge variant={meta.variant}>{meta.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="icon"
+                          title="Imprimir Nota de Venta"
+                        >
+                          <a
+                            href={`/api/sales/${s.id}/nota-venta`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <ReceiptText className="h-4 w-4" />
+                          </a>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
