@@ -48,23 +48,23 @@ export default async function CustomerDetailPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Button asChild variant="ghost" size="icon" className="shrink-0">
           <Link href="/customers">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
             {customer.firstName} {customer.lastName ?? ""}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="truncate text-xs text-muted-foreground sm:text-sm">
             {DOC_TYPE_LABELS[customer.docType as keyof typeof DOC_TYPE_LABELS]}:{" "}
             <span className="font-mono">{customer.docNumber}</span>
           </p>
         </div>
         {!customer.isActive && (
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary" className="shrink-0">
             Inactivo
           </Badge>
         )}
@@ -132,10 +132,10 @@ export default async function CustomerDetailPage({ params }: PageProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Código</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead className="text-center">Items</TableHead>
+                  <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                  <TableHead className="hidden text-center md:table-cell">Items</TableHead>
                   <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -145,15 +145,20 @@ export default async function CustomerDetailPage({ params }: PageProps) {
                       <Link href={`/sales/${s.id}`} className="hover:underline">
                         {s.code}
                       </Link>
+                      <div className="font-sans text-[11px] text-muted-foreground sm:hidden">
+                        {formatDateTime(s.createdAt)}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
                       {formatDateTime(s.createdAt)}
                     </TableCell>
-                    <TableCell className="text-center text-sm">{s._count.details}</TableCell>
+                    <TableCell className="hidden text-center text-sm md:table-cell">
+                      {s._count.details}
+                    </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(Number(s.total))}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge
                         variant={
                           s.status === "COMPLETED"

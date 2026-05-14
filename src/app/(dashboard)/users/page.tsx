@@ -67,11 +67,11 @@ export default async function UsersPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Correo</TableHead>
-                  <TableHead>Rol</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Último ingreso</TableHead>
-                  <TableHead>Creado</TableHead>
+                  <TableHead className="hidden md:table-cell">Correo</TableHead>
+                  <TableHead className="hidden sm:table-cell">Rol</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
+                  <TableHead className="hidden lg:table-cell">Último ingreso</TableHead>
+                  <TableHead className="hidden lg:table-cell">Creado</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -85,24 +85,46 @@ export default async function UsersPage() {
                           Tú
                         </Badge>
                       )}
+                      <div className="text-[11px] font-normal text-muted-foreground md:hidden">
+                        {u.email}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1 sm:hidden">
+                        <Badge
+                          variant={u.role === "ADMIN" ? "default" : "secondary"}
+                          className="px-1.5 py-0 text-[10px]"
+                        >
+                          {u.role === "ADMIN" ? "Admin" : "Cajero"}
+                        </Badge>
+                        {u.isActive ? (
+                          <Badge variant="success" className="px-1.5 py-0 text-[10px]">
+                            Activo
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="px-1.5 py-0 text-[10px]">
+                            Inactivo
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
+                      {u.email}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant={u.role === "ADMIN" ? "default" : "secondary"}>
                         {u.role === "ADMIN" ? "Administrador" : "Cajero"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {u.isActive ? (
                         <Badge variant="success">Activo</Badge>
                       ) : (
                         <Badge variant="destructive">Inactivo</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                       {u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "Nunca"}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                       {formatDate(u.createdAt)}
                     </TableCell>
                     <TableCell>

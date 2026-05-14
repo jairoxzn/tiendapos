@@ -70,11 +70,11 @@ export default async function BrandsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Logo</TableHead>
+                  <TableHead className="w-14">Logo</TableHead>
                   <TableHead>Nombre</TableHead>
-                  <TableHead className="text-center">Productos</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Creada</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Productos</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
+                  <TableHead className="hidden md:table-cell">Creada</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -96,16 +96,24 @@ export default async function BrandsPage() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{b.name}</TableCell>
-                    <TableCell className="text-center text-sm">{b._count.products}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium">
+                      {b.name}
+                      <div className="text-[11px] font-normal text-muted-foreground sm:hidden">
+                        {b._count.products} producto{b._count.products !== 1 && "s"} ·{" "}
+                        {b.isActive ? "Activa" : "Inactiva"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-center text-sm sm:table-cell">
+                      {b._count.products}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {b.isActive ? (
                         <Badge variant="success">Activa</Badge>
                       ) : (
                         <Badge variant="secondary">Inactiva</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                       {formatDate(b.createdAt)}
                     </TableCell>
                     <TableCell>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+import { MobileNav } from "./mobile-nav";
 import { UserMenu } from "./user-menu";
 
 interface NavbarProps {
@@ -12,8 +13,10 @@ interface NavbarProps {
 
 export function Navbar({ user }: NavbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur sm:px-6">
-      <div className="relative max-w-md flex-1">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur sm:gap-3 sm:px-6">
+      <MobileNav role={user.role} />
+
+      <div className="relative hidden max-w-md flex-1 sm:block">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"

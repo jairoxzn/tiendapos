@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { getOpenCashRegisterForUser } from "@/lib/cash-register-queries";
 
 import { CartPanel } from "./cart-panel";
+import { MobileCart } from "./mobile-cart";
 import { NoCashRegister } from "./no-cash-register";
 import { ProductSearch } from "./product-search";
 
@@ -29,9 +30,9 @@ export default async function PosPage() {
   }
 
   return (
-    <div className="grid h-[calc(100vh-7rem)] grid-cols-1 gap-4 lg:grid-cols-[1fr_400px]">
-      <div className="flex min-h-0 flex-col">
-        <div className="mb-3 flex items-baseline gap-2">
+    <div className="pb-20 lg:grid lg:h-[calc(100vh-8rem)] lg:grid-cols-[1fr_400px] lg:gap-4 lg:pb-0">
+      <div className="flex flex-col lg:min-h-0">
+        <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <h1 className="text-xl font-semibold tracking-tight">Punto de Venta</h1>
           <span className="text-xs text-muted-foreground">
             Caja {cashRegister.code} · abierta
@@ -39,9 +40,12 @@ export default async function PosPage() {
         </div>
         <ProductSearch />
       </div>
-      <div className="min-h-0">
+
+      <aside className="hidden min-h-0 lg:block">
         <CartPanel />
-      </div>
+      </aside>
+
+      <MobileCart />
     </div>
   );
 }

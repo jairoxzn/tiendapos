@@ -110,15 +110,15 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Fecha</TableHead>
+                  <TableHead className="hidden md:table-cell">Fecha</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Producto</TableHead>
-                  <TableHead>Variante</TableHead>
+                  <TableHead className="hidden md:table-cell">Variante</TableHead>
                   <TableHead className="text-center">Cantidad</TableHead>
-                  <TableHead className="text-center">Stock</TableHead>
-                  <TableHead>Referencia</TableHead>
-                  <TableHead>Costo</TableHead>
-                  <TableHead>Usuario</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Stock</TableHead>
+                  <TableHead className="hidden lg:table-cell">Referencia</TableHead>
+                  <TableHead className="hidden lg:table-cell">Costo</TableHead>
+                  <TableHead className="hidden md:table-cell">Usuario</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -126,33 +126,36 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                   const meta = TYPE_META[m.type];
                   return (
                     <TableRow key={m.id}>
-                      <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                      <TableCell className="hidden whitespace-nowrap text-sm text-muted-foreground md:table-cell">
                         {formatDateTime(m.createdAt)}
                       </TableCell>
                       <TableCell>
                         <Badge variant={meta.variant}>
                           <meta.Icon className="h-3 w-3" />
-                          {meta.label}
+                          <span className="hidden sm:inline">{meta.label}</span>
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
                         {m.variant.product.name}
+                        <div className="text-[11px] font-normal text-muted-foreground md:hidden">
+                          {m.variant.size} / {m.variant.color} · {formatDateTime(m.createdAt)}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden text-sm md:table-cell">
                         {m.variant.size} / {m.variant.color}
                         <p className="font-mono text-[11px] text-muted-foreground">
                           {m.variant.sku}
                         </p>
                       </TableCell>
                       <TableCell className="text-center font-medium">{m.quantity}</TableCell>
-                      <TableCell className="text-center text-sm text-muted-foreground">
+                      <TableCell className="hidden text-center text-sm text-muted-foreground sm:table-cell">
                         {m.stockBefore} → <span className="font-medium text-foreground">{m.stockAfter}</span>
                       </TableCell>
-                      <TableCell className="text-sm">{m.reference ?? "—"}</TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden text-sm lg:table-cell">{m.reference ?? "—"}</TableCell>
+                      <TableCell className="hidden text-sm lg:table-cell">
                         {m.unitCost ? formatCurrency(Number(m.unitCost)) : "—"}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                         {m.user.name}
                       </TableCell>
                     </TableRow>

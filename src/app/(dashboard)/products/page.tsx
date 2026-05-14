@@ -114,12 +114,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <TableRow>
                   <TableHead className="w-16">Imagen</TableHead>
                   <TableHead>Producto</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Marca</TableHead>
+                  <TableHead className="hidden md:table-cell">SKU</TableHead>
+                  <TableHead className="hidden lg:table-cell">Categoría</TableHead>
+                  <TableHead className="hidden lg:table-cell">Marca</TableHead>
                   <TableHead className="text-right">Precio</TableHead>
-                  <TableHead className="text-center">Stock</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Stock</TableHead>
+                  <TableHead className="hidden md:table-cell">Estado</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -154,24 +154,28 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                         </Link>
                         <p className="text-xs text-muted-foreground">
                           {p.variants.length} variante{p.variants.length !== 1 && "s"}
+                          <span className="sm:hidden"> · Stock {stock}</span>
+                        </p>
+                        <p className="font-mono text-[11px] text-muted-foreground md:hidden">
+                          {p.sku}
                         </p>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{p.sku}</TableCell>
-                      <TableCell className="text-sm">{p.category.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden font-mono text-xs md:table-cell">{p.sku}</TableCell>
+                      <TableCell className="hidden text-sm lg:table-cell">{p.category.name}</TableCell>
+                      <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                         {p.brand?.name ?? "—"}
                       </TableCell>
                       <TableCell className="text-right font-medium">
                         {formatCurrency(Number(p.salePrice))}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden text-center sm:table-cell">
                         {lowStock ? (
                           <Badge variant="warning">{stock} ⚠</Badge>
                         ) : (
                           <span className="text-sm">{stock}</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {p.isActive ? (
                           <Badge variant="success">Activo</Badge>
                         ) : (

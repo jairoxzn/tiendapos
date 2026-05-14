@@ -148,11 +148,11 @@ export default async function InventoryPage({ searchParams }: PageProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Producto</TableHead>
-                  <TableHead>Variante</TableHead>
-                  <TableHead>SKU</TableHead>
+                  <TableHead className="hidden sm:table-cell">Variante</TableHead>
+                  <TableHead className="hidden md:table-cell">SKU</TableHead>
                   <TableHead className="text-center">Stock</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Valor stock</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
+                  <TableHead className="hidden text-right lg:table-cell">Valor stock</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -170,8 +170,14 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                         >
                           {v.product.name}
                         </Link>
+                        <div className="text-[11px] text-muted-foreground sm:hidden">
+                          {v.size} · {v.color}
+                        </div>
+                        <div className="font-mono text-[11px] text-muted-foreground md:hidden">
+                          {v.sku}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden text-sm sm:table-cell">
                         <span className="font-medium">{v.size}</span>
                         <span className="mx-1 text-muted-foreground">·</span>
                         <span className="inline-flex items-center gap-1.5">
@@ -184,9 +190,9 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                           {v.color}
                         </span>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{v.sku}</TableCell>
+                      <TableCell className="hidden font-mono text-xs md:table-cell">{v.sku}</TableCell>
                       <TableCell className="text-center font-medium">{v.stock}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {out ? (
                           <Badge variant="destructive">Sin stock</Badge>
                         ) : lowStock ? (
@@ -195,7 +201,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                           <Badge variant="success">OK</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right text-sm">
+                      <TableCell className="hidden text-right text-sm lg:table-cell">
                         {formatCurrency(value)}
                       </TableCell>
                       <TableCell>

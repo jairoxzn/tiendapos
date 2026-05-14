@@ -57,12 +57,14 @@ export default async function ReportsPage({ searchParams }: PageProps) {
       <DateRangeForm initialFrom={fromStr} initialTo={toStr} />
 
       <Tabs defaultValue={params.tab ?? "sales"} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="sales">Ventas</TabsTrigger>
-          <TabsTrigger value="top">Productos top</TabsTrigger>
-          <TabsTrigger value="profits">Ganancias</TabsTrigger>
-          <TabsTrigger value="cash">Caja</TabsTrigger>
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto px-1">
+          <TabsList className="w-max">
+            <TabsTrigger value="sales">Ventas</TabsTrigger>
+            <TabsTrigger value="top">Productos top</TabsTrigger>
+            <TabsTrigger value="profits">Ganancias</TabsTrigger>
+            <TabsTrigger value="cash">Caja</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="sales" className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-4">
@@ -290,7 +292,11 @@ function Stat({ label, value, highlight }: { label: string; value: string; highl
     <Card>
       <CardContent className="p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-        <p className={`mt-1 text-2xl font-semibold ${highlight ? "text-primary" : ""}`}>{value}</p>
+        <p
+          className={`mt-1 text-xl font-semibold sm:text-2xl ${highlight ? "text-primary" : ""}`}
+        >
+          {value}
+        </p>
       </CardContent>
     </Card>
   );

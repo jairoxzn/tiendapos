@@ -84,25 +84,27 @@ export default async function SaleDetailPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="icon">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Button asChild variant="ghost" size="icon" className="shrink-0">
             <Link href="/sales">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{sale.code}</h1>
-            <p className="text-sm text-muted-foreground">
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+              {sale.code}
+            </h1>
+            <p className="truncate text-xs text-muted-foreground sm:text-sm">
               {formatDateTime(sale.createdAt)} · {sale.user.name}
               {sale.cashRegister?.code && ` · ${sale.cashRegister.code}`}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant={meta.variant}>{meta.label}</Badge>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" size="sm">
             <a href={`/api/sales/${sale.id}/nota-venta`} target="_blank" rel="noreferrer">
               <ReceiptText className="h-4 w-4" />
               Nota de Venta
@@ -127,23 +129,31 @@ export default async function SaleDetailPage({ params }: PageProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Producto</TableHead>
-                  <TableHead>Variante</TableHead>
+                  <TableHead className="hidden md:table-cell">Variante</TableHead>
                   <TableHead className="text-center">Cant.</TableHead>
-                  <TableHead className="text-right">P. unit.</TableHead>
-                  <TableHead className="text-right">Desc.</TableHead>
+                  <TableHead className="hidden text-right sm:table-cell">P. unit.</TableHead>
+                  <TableHead className="hidden text-right md:table-cell">Desc.</TableHead>
                   <TableHead className="text-right">Subtotal</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sale.details.map((d) => (
                   <TableRow key={d.id}>
-                    <TableCell className="font-medium">{d.productName}</TableCell>
-                    <TableCell className="text-sm">{d.variantInfo}</TableCell>
+                    <TableCell className="font-medium">
+                      {d.productName}
+                      <div className="text-[11px] font-normal text-muted-foreground md:hidden">
+                        {d.variantInfo}
+                      </div>
+                      <div className="text-[11px] font-normal text-muted-foreground sm:hidden">
+                        {formatCurrency(Number(d.unitPrice))} c/u
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden text-sm md:table-cell">{d.variantInfo}</TableCell>
                     <TableCell className="text-center">{d.quantity}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="hidden text-right sm:table-cell">
                       {formatCurrency(Number(d.unitPrice))}
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
+                    <TableCell className="hidden text-right text-muted-foreground md:table-cell">
                       {Number(d.discount) > 0 ? formatCurrency(Number(d.discount)) : "—"}
                     </TableCell>
                     <TableCell className="text-right font-medium">
@@ -154,7 +164,7 @@ export default async function SaleDetailPage({ params }: PageProps) {
               </TableBody>
             </Table>
             <Separator />
-            <div className="space-y-1 p-6 text-sm">
+            <div className="space-y-1 p-4 text-sm sm:p-6">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
                 <span>{formatCurrency(Number(sale.subtotal))}</span>

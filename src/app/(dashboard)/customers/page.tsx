@@ -108,13 +108,13 @@ export default async function CustomersPage({ searchParams }: PageProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Documento</TableHead>
+                  <TableHead className="hidden sm:table-cell">Documento</TableHead>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Teléfono</TableHead>
-                  <TableHead className="text-center">Compras</TableHead>
-                  <TableHead className="text-right">Total comprado</TableHead>
-                  <TableHead>Registrado</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead className="hidden lg:table-cell">Teléfono</TableHead>
+                  <TableHead className="hidden text-center md:table-cell">Compras</TableHead>
+                  <TableHead className="hidden text-right sm:table-cell">Total comprado</TableHead>
+                  <TableHead className="hidden lg:table-cell">Registrado</TableHead>
+                  <TableHead className="hidden md:table-cell">Estado</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
@@ -123,7 +123,7 @@ export default async function CustomersPage({ searchParams }: PageProps) {
                   const totalSpent = c.sales.reduce((s, x) => s + Number(x.total), 0);
                   return (
                     <TableRow key={c.id}>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden text-sm sm:table-cell">
                         <span className="font-mono text-xs">{c.docNumber}</span>
                         <p className="text-[11px] text-muted-foreground">
                           {DOC_TYPE_LABELS[c.docType as keyof typeof DOC_TYPE_LABELS]}
@@ -131,18 +131,21 @@ export default async function CustomersPage({ searchParams }: PageProps) {
                       </TableCell>
                       <TableCell className="font-medium">
                         {c.firstName} {c.lastName ?? ""}
+                        <div className="text-[11px] font-normal text-muted-foreground sm:hidden">
+                          {c.docNumber} · {c.phone ?? "—"}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                         {c.phone ?? "—"}
                       </TableCell>
-                      <TableCell className="text-center">{c._count.sales}</TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="hidden text-center md:table-cell">{c._count.sales}</TableCell>
+                      <TableCell className="hidden text-right font-medium sm:table-cell">
                         {formatCurrency(totalSpent)}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                         {formatDate(c.createdAt)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {c.isActive ? (
                           <Badge variant="success">Activo</Badge>
                         ) : (

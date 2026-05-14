@@ -83,12 +83,12 @@ export default async function SalesPage({ searchParams }: PageProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Código</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Cajero</TableHead>
-                  <TableHead className="text-center">Items</TableHead>
+                  <TableHead className="hidden md:table-cell">Fecha</TableHead>
+                  <TableHead className="hidden sm:table-cell">Cliente</TableHead>
+                  <TableHead className="hidden lg:table-cell">Cajero</TableHead>
+                  <TableHead className="hidden text-center lg:table-cell">Items</TableHead>
                   <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
                   <TableHead className="text-right">Imprimir</TableHead>
                 </TableRow>
               </TableHeader>
@@ -104,19 +104,29 @@ export default async function SalesPage({ searchParams }: PageProps) {
                         <Link href={`/sales/${s.id}`} className="hover:underline">
                           {s.code}
                         </Link>
+                        <div className="mt-0.5 text-[11px] text-muted-foreground md:hidden">
+                          {formatDateTime(s.createdAt)}
+                        </div>
+                        <div className="mt-0.5 text-[11px] sm:hidden">
+                          <Badge variant={meta.variant} className="px-1.5 py-0">
+                            {meta.label}
+                          </Badge>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                         {formatDateTime(s.createdAt)}
                       </TableCell>
-                      <TableCell className="text-sm">{customer}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm sm:table-cell">{customer}</TableCell>
+                      <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                         {s.user.name}
                       </TableCell>
-                      <TableCell className="text-center text-sm">{s._count.details}</TableCell>
+                      <TableCell className="hidden text-center text-sm lg:table-cell">
+                        {s._count.details}
+                      </TableCell>
                       <TableCell className="text-right font-medium">
                         {formatCurrency(Number(s.total))}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant={meta.variant}>{meta.label}</Badge>
                       </TableCell>
                       <TableCell className="text-right">

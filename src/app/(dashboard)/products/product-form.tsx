@@ -251,7 +251,7 @@ export function ProductForm({
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
             <CardTitle>Variantes</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -262,6 +262,7 @@ export function ProductForm({
             type="button"
             variant="outline"
             size="sm"
+            className="self-start sm:self-auto"
             onClick={() => append(EMPTY_VARIANT)}
           >
             <Plus className="h-4 w-4" />

@@ -70,29 +70,37 @@ export default async function CategoriesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Descripción</TableHead>
-                  <TableHead className="text-center">Productos</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Creada</TableHead>
+                  <TableHead className="hidden md:table-cell">Descripción</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Productos</TableHead>
+                  <TableHead className="hidden sm:table-cell">Estado</TableHead>
+                  <TableHead className="hidden lg:table-cell">Creada</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {categories.map((c) => (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell className="max-w-xs truncate text-muted-foreground">
+                    <TableCell className="font-medium">
+                      {c.name}
+                      <div className="text-[11px] font-normal text-muted-foreground sm:hidden">
+                        {c._count.products} producto{c._count.products !== 1 && "s"} ·{" "}
+                        {c.isActive ? "Activa" : "Inactiva"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden max-w-xs truncate text-muted-foreground md:table-cell">
                       {c.description ?? "—"}
                     </TableCell>
-                    <TableCell className="text-center text-sm">{c._count.products}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden text-center text-sm sm:table-cell">
+                      {c._count.products}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {c.isActive ? (
                         <Badge variant="success">Activa</Badge>
                       ) : (
                         <Badge variant="secondary">Inactiva</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                       {formatDate(c.createdAt)}
                     </TableCell>
                     <TableCell>

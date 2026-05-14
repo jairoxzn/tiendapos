@@ -112,7 +112,7 @@ export default async function CashRegisterPage() {
         <>
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="space-y-1">
                   <CardTitle>{openRegister.code}</CardTitle>
                   <p className="text-sm text-muted-foreground">
@@ -200,12 +200,12 @@ export default async function CashRegisterPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Código</TableHead>
-                  <TableHead>Cajero</TableHead>
-                  <TableHead>Abierta</TableHead>
-                  <TableHead>Cerrada</TableHead>
-                  <TableHead className="text-right">Inicial</TableHead>
-                  <TableHead className="text-right">Esperado</TableHead>
-                  <TableHead className="text-right">Contado</TableHead>
+                  <TableHead className="hidden sm:table-cell">Cajero</TableHead>
+                  <TableHead className="hidden md:table-cell">Abierta</TableHead>
+                  <TableHead className="hidden md:table-cell">Cerrada</TableHead>
+                  <TableHead className="hidden text-right lg:table-cell">Inicial</TableHead>
+                  <TableHead className="hidden text-right lg:table-cell">Esperado</TableHead>
+                  <TableHead className="hidden text-right sm:table-cell">Contado</TableHead>
                   <TableHead className="text-right">Dif.</TableHead>
                 </TableRow>
               </TableHeader>
@@ -214,21 +214,29 @@ export default async function CashRegisterPage() {
                   const diff = Number(c.difference ?? 0);
                   return (
                     <TableRow key={c.id}>
-                      <TableCell className="font-mono text-xs">{c.code}</TableCell>
-                      <TableCell className="text-sm">{c.user.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="font-mono text-xs">
+                        {c.code}
+                        <div className="font-sans text-[11px] text-muted-foreground sm:hidden">
+                          {c.user.name}
+                        </div>
+                        <div className="font-sans text-[11px] text-muted-foreground md:hidden">
+                          {c.closedAt ? formatDateTime(c.closedAt) : "—"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden text-sm sm:table-cell">{c.user.name}</TableCell>
+                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                         {formatDateTime(c.openedAt)}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                         {c.closedAt ? formatDateTime(c.closedAt) : "—"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden text-right lg:table-cell">
                         {formatCurrency(Number(c.openingAmount))}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden text-right lg:table-cell">
                         {formatCurrency(Number(c.expectedAmount ?? 0))}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden text-right sm:table-cell">
                         {formatCurrency(Number(c.closingAmount ?? 0))}
                       </TableCell>
                       <TableCell
